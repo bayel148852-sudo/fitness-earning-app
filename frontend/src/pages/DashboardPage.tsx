@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronRight, Flame, Zap, Trophy, Target, ArrowUpRight } from 'lucide-react';
+import { Flame, Trophy, ArrowUpRight } from 'lucide-react';
 
 const workouts = [
   { title: 'Ice Sprint', type: 'Cardio', duration: '18 min', difficulty: 'Hard' },
@@ -13,13 +13,11 @@ const rewards = [
   { title: 'Elite Pack', desc: 'Top 10 ranking', value: 'Open' },
 ];
 
-const chartData = [36, 52, 45, 68, 74, 60, 90];
-
 export default function DashboardPage({ page, user, setUser }: any) {
   const [dashboard, setDashboard] = useState<any>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('winterArcToken');
     if (!token) return;
 
     fetch('http://localhost:5000/api/dashboard', {
@@ -27,12 +25,10 @@ export default function DashboardPage({ page, user, setUser }: any) {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.user) {
-          setUser(data.user);
-        }
+        if (data.user) setUser(data.user);
         setDashboard(data);
       })
-      .catch((err) => console.error('Dashboard fetch failed', err));
+      .catch((err) => console.error(err));
   }, [setUser]);
 
   if (!dashboard) {
@@ -41,8 +37,8 @@ export default function DashboardPage({ page, user, setUser }: any) {
 
   const stats = [
     { label: 'Streak', value: `${dashboard.overview.streak} days`, trend: '+3 from last week' },
-    { label: 'Workout XP', value: String(dashboard.overview.xp), trend: '+220 today' },
-    { label: 'Coins', value: String(dashboard.overview.coins), trend: '+50 earned' },
+    { label: 'Workout XP', value: dashboard.overview.xp, trend: '+220 today' },
+    { label: 'Coins', value: dashboard.overview.coins, trend: '+50 earned' },
     { label: 'Recovery', value: `${dashboard.overview.recovery}%`, trend: 'Well rested' },
   ];
 
@@ -51,9 +47,7 @@ export default function DashboardPage({ page, user, setUser }: any) {
       <section className="hero">
         <div>
           <h2>Build your cold-season power.</h2>
-          <p>
-            Keep your streak alive, complete high-impact sessions, and unlock rewards that push your discipline further every day.
-          </p>
+          <p>Keep your streak alive, complete high-impact sessions, and unlock the next level of discipline.</p>
         </div>
         <div className="hero-actions">
           <button className="primary-btn">Start today</button>
@@ -62,14 +56,14 @@ export default function DashboardPage({ page, user, setUser }: any) {
       </section>
 
       <section className="stats-grid">
-        {stats.map(({ label, value, trend }) => (
-          <div key={label} className="stat-card">
+        {stats.map((item) => (
+          <div key={item.label} className="stat-card">
             <div className="stat-label">
-              <span>{label}</span>
+              <span>{item.label}</span>
               <span>↗</span>
             </div>
-            <div className="stat-value">{value}</div>
-            <div className="stat-trend">{trend}</div>
+            <div className="stat-value">{item.value}</div>
+            <div className="stat-trend">{item.trend}</div>
           </div>
         ))}
       </section>
@@ -77,21 +71,21 @@ export default function DashboardPage({ page, user, setUser }: any) {
       <section className="content-grid">
         <div className="card">
           <div className="section-header">
-            <h3>Today’s plan</h3>
+            <h3>Today's plan</h3>
             <span className="tag">{workouts.length} sessions</span>
           </div>
 
           <div className="workout-list">
-            {workouts.map(({ title, type, duration, difficulty }) => (
-              <div key={title} className="workout-item">
+            {workouts.map((item) => (
+              <div key={item.title} className="workout-item">
                 <div className="workout-main">
                   <div className="icon-box">⚡</div>
                   <div className="workout-info">
-                    <h4>{title}</h4>
-                    <div className="workout-meta">{type} · {duration}</div>
+                    <h4>{item.title}</h4>
+                    <div className="workout-meta">{item.type} · {item.duration}</div>
                   </div>
                 </div>
-                <div className="pill">{difficulty}</div>
+                <div className="pill">{item.difficulty}</div>
               </div>
             ))}
           </div>
@@ -101,18 +95,19 @@ export default function DashboardPage({ page, user, setUser }: any) {
           <div className="card">
             <div className="section-header">
               <h3>Rewards</h3>
-              <span className="tag">New</span>
+              <span className="tag">new</span>
             </div>
-            {rewards.map(({ title, desc, value }) => (
-              <div key={title} className="reward-item">
+
+            {rewards.map((reward) => (
+              <div key={reward.title} className="reward-item">
                 <div className="workout-main">
                   <div className="reward-icon">🎁</div>
                   <div className="workout-info">
-                    <h4>{title}</h4>
-                    <div className="reward-meta">{desc}</div>
+                    <h4>{reward.title}</h4>
+                    <div className="reward-meta">{reward.desc}</div>
                   </div>
                 </div>
-                <div className="pill">{value}</div>
+                <div className="pill">{reward.value}</div>
               </div>
             ))}
           </div>
@@ -124,10 +119,10 @@ export default function DashboardPage({ page, user, setUser }: any) {
             </div>
 
             <div className="chart-panel">
-              {chartData.map((value, idx) => (
-                <div key={idx} className="bar-wrap">
+              {[36, 52, 45, 68, 74, 60, 90].map((value, index) => (
+                <div key={index} className="bar-wrap">
                   <div className="bar" style={{ height: `${value}%` }} />
-                  <div className="day-label">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][idx]}</div>
+                  <div className="day-label">{['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}</div>
                 </div>
               ))}
             </div>
@@ -141,7 +136,7 @@ export default function DashboardPage({ page, user, setUser }: any) {
     <div className="card">
       <div className="section-header">
         <h3>Training plan</h3>
-        <span className="tag">Power mode</span>
+        <span className="tag">power mode</span>
       </div>
 
       <div className="stack">
@@ -171,16 +166,17 @@ export default function DashboardPage({ page, user, setUser }: any) {
         <h3>Goals</h3>
         <span className="tag">3 active</span>
       </div>
+
       <div className="stack">
         {[
-          { title: '7-day streak', progress: 85, label: '6 of 7 days' },
-          { title: 'Workout XP', progress: 68, label: '1360 / 2000 XP' },
-          { title: 'Recovery score', progress: 92, label: '92% optimized' },
+          { title: '7-day streak', current: '6 of 7', progress: 85 },
+          { title: 'Workout XP', current: '1360 / 2000 XP', progress: 68 },
+          { title: 'Recovery score', current: '92% optimized', progress: 92 },
         ].map((goal) => (
           <div key={goal.title} className="goal-row">
             <div className="goal-top">
               <strong>{goal.title}</strong>
-              <span>{goal.label}</span>
+              <span>{goal.current}</span>
             </div>
             <div className="progress-bar">
               <span style={{ width: `${goal.progress}%` }} />
@@ -195,8 +191,9 @@ export default function DashboardPage({ page, user, setUser }: any) {
     <div className="card">
       <div className="section-header">
         <h3>Rewards</h3>
-        <span className="tag">Keep pushing</span>
+        <span className="tag">keep pushing</span>
       </div>
+
       <div className="stack">
         {rewards.map((reward) => (
           <div key={reward.title} className="reward-item bigger">
@@ -218,8 +215,9 @@ export default function DashboardPage({ page, user, setUser }: any) {
     <div className="card">
       <div className="section-header">
         <h3>Boost & momentum</h3>
-        <span className="tag">Daily</span>
+        <span className="tag">daily</span>
       </div>
+
       <div className="boost-box">
         <div className="boost-row">
           <Flame size={20} />
@@ -227,7 +225,7 @@ export default function DashboardPage({ page, user, setUser }: any) {
           <strong>{dashboard.overview.streak} days</strong>
         </div>
         <div className="boost-row">
-          <Zap size={20} />
+          <ArrowUpRight size={20} />
           <span>Power output</span>
           <strong>+24%</strong>
         </div>
